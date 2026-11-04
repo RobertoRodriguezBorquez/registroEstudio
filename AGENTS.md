@@ -31,6 +31,7 @@
 - Las fechas son cadenas locales `YYYY-MM-DD` construidas con `getFullYear/getMonth/getDate`. Nunca uses `toISOString()`: UTC puede cambiar el día.
 - `sumarDias()` construye las fechas a las 12:00 locales para que el cambio de hora no salte un día.
 - Racha = días consecutivos con al menos una sesión terminando hoy. Si hoy no hay sesión pero ayer sí, la racha sigue viva y cuenta desde ayer. Las fechas futuras nunca cuentan.
+- Récord = tirada consecutiva más larga de días con sesión. Se deriva de las sesiones con `calcularRecord()`, no se persiste, e ignora fechas futuras. `calcularRacha()` da la racha viva actual.
 - Persistencia: clave `diario-estudio.sesiones.v1`; forma de sesión `{ id, date, topic, minutes, creado }`. Se pinta ordenado por `date` desc y luego `creado` desc.
 - Pinta el tema escrito por el usuario con `textContent`, nunca con `innerHTML`.
 

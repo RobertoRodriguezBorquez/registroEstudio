@@ -21,9 +21,12 @@ import Layout from "../layouts/Layout.astro";
 						0
 					</span>
 				</p>
-				<p id="racha-texto" class="mt-4 font-display text-sm font-medium text-ink-soft">
-					Empieza hoy tu racha
-				</p>
+				<div class="mt-4 flex items-baseline justify-between gap-4">
+					<p id="racha-texto" class="font-display text-sm font-medium text-ink-soft">
+						Empieza hoy tu racha
+					</p>
+					<p id="racha-record" class="hidden font-display text-xs text-ink-soft"></p>
+				</div>
 			</section>
 
 			<!-- Formulario -->
@@ -104,6 +107,7 @@ import Layout from "../layouts/Layout.astro";
 	const listaVacia = document.getElementById("lista-vacia");
 	const rachaCantidad = document.getElementById("racha-cantidad");
 	const rachaTexto = document.getElementById("racha-texto");
+	const rachaRecord = document.getElementById("racha-record");
 
 	/** Devuelve la fecha local en formato "AAAA-MM-DD".
 	 *  Usamos getFullYear/getMonth/getDate (hora local), nunca toISOString(). */
@@ -160,6 +164,31 @@ import Layout from "../layouts/Layout.astro";
 		return racha;
 	}
 
+	/** Tirada consecutiva más larga de días con sesión (récord personal).
+	 *  Se calcula desde las sesiones, así que no puede desincronizarse. */
+	function calcularRecord(sesiones) {
+		const hoy = fechaLocal(new Date());
+		const dias = [
+			...new Set(
+				sesiones
+					.map((sesion) => sesion.date)
+					.filter((dia) => /^\d{4}-\d{2}-\d{2}$/.test(dia) && dia <= hoy),
+			),
+		].sort();
+
+		let record = 0;
+		let actual = 0;
+		let anterior = null;
+
+		for (const dia of dias) {
+			actual = anterior && sumarDias(anterior, 1) === dia ? actual + 1 : 1;
+			if (actual > record) record = actual;
+			anterior = dia;
+		}
+
+		return record;
+	}
+
 	const formatoDia = new Intl.DateTimeFormat("es-ES", { day: "2-digit" });
 	const formatoMes = new Intl.DateTimeFormat("es-ES", { month: "short" });
 
@@ -201,6 +230,11 @@ import Layout from "../layouts/Layout.astro";
 		rachaCantidad.textContent = String(racha);
 		rachaTexto.textContent =
 			racha === 0 ? "Empieza hoy tu racha" : racha === 1 ? "día seguido" : "días seguidos";
+
+		// Récord
+		const record = calcularRecord(sesiones);
+		rachaRecord.textContent = record === 1 ? "Récord: 1 día" : `Récord: ${record} días`;
+		rachaRecord.classList.toggle("hidden", record === 0);
 
 		// Lista
 		lista.replaceChildren(...sesiones.map(crearFila));
