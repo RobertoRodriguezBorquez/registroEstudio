@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/* Paleta y tipografías del proyecto.
+   Al declararlas dentro de @theme, Tailwind crea clases como
+   bg-paper, text-ink, border-rule o font-display. */
+@theme {
+  --color-paper: #edf0f2;
+  --color-ink: #16202e;
+  --color-ink-soft: #5c6675;
+  --color-rule: #c6cdd6;
+  --color-marker: #f3e43b;
+  --color-alerta: #a3261b;
+
+  --font-display: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Literata", Georgia, "Times New Roman", serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-marker);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  /* Si el usuario pide menos movimiento, desactivamos las animaciones. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* El número de la racha lleva detrás un trazo de subrayador.
+   Es el único elemento "llamativo" de la página. */
+.racha-numero {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.racha-numero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -0.06em;
+  bottom: 0.06em;
+  left: -0.03em;
+  height: 0.44em;
+  background-color: var(--color-marker);
+  transform: rotate(-1.4deg) skewX(-12deg);
+  transform-origin: left bottom;
+  animation: trazo 620ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms both;
+}
+
+@keyframes trazo {
+  from {
+    transform: rotate(-1.4deg) skewX(-12deg) scaleX(0);
+  }
+  to {
+    transform: rotate(-1.4deg) skewX(-12deg) scaleX(1);
+  }
+}
+
+/* Cada sesión es una fila de cuaderno: fecha a la izquierda,
+   tema en el centro y minutos a la derecha. */
+.sesion {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.sesion-fecha {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--color-ink-soft);
+}
+
+.sesion-fecha strong {
+  display: block;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.sesion-tema {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sesion-minutos {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

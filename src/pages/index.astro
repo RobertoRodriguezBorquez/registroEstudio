@@ -1,11 +1,262 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-	<Welcome />
+	<div class="mx-auto w-full max-w-[40rem] px-5 pt-9 pb-20 sm:px-8">
+		<header class="border-b border-rule pb-4">
+			<h1 class="font-display text-[0.95rem] font-semibold tracking-[0.01em]">Diario de Estudio</h1>
+		</header>
+
+		<main>
+			<!-- Racha actual -->
+			<section class="pt-12">
+				<h2 class="sr-only">Racha actual</h2>
+				<p class="flex items-end gap-2 sm:gap-3">
+					<span class="pb-2 text-[2.2rem] leading-none sm:text-[2.75rem]" aria-hidden="true">🔥</span>
+					<span
+						id="racha-cantidad"
+						class="racha-numero font-display text-[clamp(4.5rem,17vw,7rem)] leading-[0.8] font-extrabold tracking-[-0.045em]"
+					>
+						0
+					</span>
+				</p>
+				<p id="racha-texto" class="mt-4 font-display text-sm font-medium text-ink-soft">
+					Empieza hoy tu racha
+				</p>
+			</section>
+
+			<!-- Formulario -->
+			<section class="mt-12 border-t border-rule pt-8">
+				<h2 class="font-display text-sm font-semibold">Añadir sesión</h2>
+
+				<form id="form-sesion" class="mt-6 space-y-6" novalidate>
+					<div>
+						<label for="fecha" class="block font-display text-xs font-medium text-ink-soft">Fecha</label>
+						<input
+							id="fecha"
+							name="fecha"
+							type="date"
+							required
+							class="mt-1.5 w-full border-b border-rule bg-transparent px-0 py-2 font-display text-base focus:border-ink"
+						/>
+					</div>
+
+					<div>
+						<label for="tema" class="block font-display text-xs font-medium text-ink-soft">Tema</label>
+						<input
+							id="tema"
+							name="tema"
+							type="text"
+							required
+							autocomplete="off"
+							placeholder="Qué has estudiado"
+							class="mt-1.5 w-full border-b border-rule bg-transparent px-0 py-2 font-display text-base placeholder:text-ink-soft/50 focus:border-ink"
+						/>
+					</div>
+
+					<div>
+						<label for="minutos" class="block font-display text-xs font-medium text-ink-soft">Minutos</label>
+						<input
+							id="minutos"
+							name="minutos"
+							type="number"
+							required
+							min="1"
+							step="1"
+							inputmode="numeric"
+							placeholder="45"
+							class="mt-1.5 w-full border-b border-rule bg-transparent px-0 py-2 font-display text-base placeholder:text-ink-soft/50 focus:border-ink"
+						/>
+					</div>
+
+					<p id="error" class="hidden font-display text-xs font-medium text-alerta" role="alert" aria-live="polite"></p>
+
+					<button
+						type="submit"
+						class="w-full rounded-[3px] bg-ink px-6 py-3 font-display text-sm font-semibold text-paper transition-colors hover:bg-[#0d1522] sm:w-auto"
+					>
+						Guardar sesión
+					</button>
+				</form>
+			</section>
+
+			<!-- Lista de sesiones -->
+			<section class="mt-12">
+				<h2 class="font-display text-sm font-semibold">Sesiones</h2>
+				<ul id="lista-sesiones" class="mt-4 hidden border-t border-rule"></ul>
+				<p id="lista-vacia" class="mt-3 text-sm text-ink-soft italic">Todavía no has registrado ninguna sesión.</p>
+			</section>
+		</main>
+	</div>
 </Layout>
+
+<script>
+	// Clave con la que guardamos las sesiones en el navegador.
+	const CLAVE = "diario-estudio.sesiones.v1";
+
+	const form = document.getElementById("form-sesion");
+	const inputFecha = document.getElementById("fecha");
+	const inputTema = document.getElementById("tema");
+	const inputMinutos = document.getElementById("minutos");
+	const cajaError = document.getElementById("error");
+	const lista = document.getElementById("lista-sesiones");
+	const listaVacia = document.getElementById("lista-vacia");
+	const rachaCantidad = document.getElementById("racha-cantidad");
+	const rachaTexto = document.getElementById("racha-texto");
+
+	/** Devuelve la fecha local en formato "AAAA-MM-DD".
+	 *  Usamos getFullYear/getMonth/getDate (hora local), nunca toISOString(). */
+	function fechaLocal(fecha) {
+		const anio = fecha.getFullYear();
+		const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+		const dia = String(fecha.getDate()).padStart(2, "0");
+		return `${anio}-${mes}-${dia}`;
+	}
+
+	/** Suma o resta días a una fecha "AAAA-MM-DD" sin pasar por UTC.
+	 *  Fijamos las 12:00 para que el cambio de hora no mueva el día. */
+	function sumarDias(fechaISO, dias) {
+		const [anio, mes, dia] = fechaISO.split("-").map(Number);
+		const fecha = new Date(anio, mes - 1, dia, 12, 0, 0);
+		fecha.setDate(fecha.getDate() + dias);
+		return fechaLocal(fecha);
+	}
+
+	function leerSesiones() {
+		try {
+			const guardado = localStorage.getItem(CLAVE);
+			if (!guardado) return [];
+			const sesiones = JSON.parse(guardado);
+			return Array.isArray(sesiones) ? sesiones : [];
+		} catch {
+			return [];
+		}
+	}
+
+	function guardarSesiones(sesiones) {
+		try {
+			localStorage.setItem(CLAVE, JSON.stringify(sesiones));
+		} catch {
+			// Si el navegador bloquea localStorage, la sesión no se guarda.
+		}
+	}
+
+	/** Días consecutivos con al menos una sesión, contando desde hoy.
+	 *  Si hoy aún no hay sesión pero ayer sí, la racha sigue viva. */
+	function calcularRacha(sesiones) {
+		const dias = new Set(sesiones.map((sesion) => sesion.date));
+		const hoy = fechaLocal(new Date());
+		const ayer = sumarDias(hoy, -1);
+
+		let cursor = dias.has(hoy) ? hoy : dias.has(ayer) ? ayer : null;
+		let racha = 0;
+
+		while (cursor && dias.has(cursor)) {
+			racha += 1;
+			cursor = sumarDias(cursor, -1);
+		}
+
+		return racha;
+	}
+
+	const formatoDia = new Intl.DateTimeFormat("es-ES", { day: "2-digit" });
+	const formatoMes = new Intl.DateTimeFormat("es-ES", { month: "short" });
+
+	/** Crea la fila de una sesión con createElement + textContent
+	 *  para que el texto del usuario se muestre tal cual. */
+	function crearFila(sesion) {
+		const [anio, mes, dia] = sesion.date.split("-").map(Number);
+		const fecha = new Date(anio, mes - 1, dia, 12, 0, 0);
+
+		const fila = document.createElement("li");
+		fila.className = "sesion";
+
+		const columnaFecha = document.createElement("span");
+		columnaFecha.className = "sesion-fecha";
+
+		const diaConMes = document.createElement("strong");
+		diaConMes.textContent = `${formatoDia.format(fecha)} ${formatoMes.format(fecha)}`;
+		columnaFecha.append(diaConMes, String(anio));
+
+		const tema = document.createElement("span");
+		tema.className = "sesion-tema";
+		tema.textContent = sesion.topic;
+
+		const minutos = document.createElement("span");
+		minutos.className = "sesion-minutos";
+		minutos.textContent = `${sesion.minutes} min`;
+
+		fila.append(columnaFecha, tema, minutos);
+		return fila;
+	}
+
+	function pintar() {
+		const sesiones = leerSesiones().sort(
+			(a, b) => b.date.localeCompare(a.date) || b.creado - a.creado,
+		);
+
+		// Racha
+		const racha = calcularRacha(sesiones);
+		rachaCantidad.textContent = String(racha);
+		rachaTexto.textContent =
+			racha === 0 ? "Empieza hoy tu racha" : racha === 1 ? "día seguido" : "días seguidos";
+
+		// Lista
+		lista.replaceChildren(...sesiones.map(crearFila));
+		lista.classList.toggle("hidden", sesiones.length === 0);
+		listaVacia.classList.toggle("hidden", sesiones.length > 0);
+	}
+
+	function mostrarError(mensaje) {
+		cajaError.textContent = mensaje;
+		cajaError.classList.toggle("hidden", mensaje === "");
+	}
+
+	form.addEventListener("submit", (evento) => {
+		evento.preventDefault();
+
+		const fecha = inputFecha.value;
+		const tema = inputTema.value.trim();
+		const minutos = Number(inputMinutos.value);
+
+		if (!fecha) {
+			mostrarError("Elige una fecha.");
+			inputFecha.focus();
+			return;
+		}
+
+		if (tema === "") {
+			mostrarError("Escribe un tema.");
+			inputTema.focus();
+			return;
+		}
+
+		if (!Number.isInteger(minutos) || minutos <= 0) {
+			mostrarError("Los minutos tienen que ser un número mayor que 0.");
+			inputMinutos.focus();
+			return;
+		}
+
+		const sesiones = leerSesiones();
+		sesiones.push({
+			id: crypto.randomUUID?.() ?? String(Date.now()),
+			date: fecha,
+			topic: tema,
+			minutes: minutos,
+			creado: Date.now(),
+		});
+		guardarSesiones(sesiones);
+
+		form.reset();
+		inputFecha.value = fechaLocal(new Date());
+		mostrarError("");
+		pintar();
+	});
+
+	form.addEventListener("input", () => mostrarError(""));
+
+	// Fecha de hoy por defecto y primera pintada.
+	inputFecha.value = fechaLocal(new Date());
+	pintar();
+</script>
