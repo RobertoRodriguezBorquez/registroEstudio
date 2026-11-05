@@ -22,9 +22,17 @@
 ## Tailwind 4 (no v3)
 
 - Instalado con `@tailwindcss/vite` en `astro.config.mjs`. No hay `tailwind.config.*`; no lo añadas.
-- Los tokens se declaran en `@theme` dentro de `src/styles/global.css`: `paper`, `ink`, `ink-soft`, `rule`, `marker`, `alerta`, y `font-display` / `font-body`. Usa las utilidades que generan (`text-ink-soft`, `border-rule`, `font-display`) en vez de valores hex directos.
-- `.racha-numero` y `.sesion*` están definidas fuera de `@layer`, así que sobrescriben a las utilidades de Tailwind. Edítalas en `global.css` en lugar de añadir clases de utilidad que compitan.
+- Los tokens se declaran en `@theme` dentro de `src/styles/global.css`: `wall`, `card`, `card-soft`, `ink`, `ink-soft`, `rule`, `stamp`, `stamp-deep`, y `font-display` / `font-body`. Usa las utilidades que generan (`text-ink-soft`, `border-rule`, `font-display`) en vez de valores hex directos.
+- `.tarjeta`, `.campo`, `.taladro*`, `.sello`, `.ficha-datos`, `.rotulo`, `.racha-*`, `.sesion*` y `.fecha-eco` están definidas fuera de `@layer`, así que sobrescriben a las utilidades de Tailwind. Edítalas en `global.css` en lugar de añadir clases de utilidad que compitan.
 - El `<script>` de la página es JavaScript plano aunque `tsconfig.json` extienda `astro/tsconfigs/strict`; no hay archivos `.ts`.
+
+## Diseño
+
+- `PRODUCT.md` guarda la verdad del producto y `DESIGN.md` el mundo visual (tokens, componentes y reglas). No los contradigas.
+- Superficie en modo Operate: el mundo aporta tipografía, paleta, densidad y una firma; nunca la navegación ni los controles, que son los estándar de la web.
+- El mundo es la tarjeta de fichar: manila sobre pared fría, rojo de sello como único acento y un sello FICHADO al guardar. La anti-referencia es el cuaderno con papel crema, subrayador amarillo y serif.
+- Usa los tokens de `global.css` en vez de hex sueltos. La llama de la racha es SVG, no un emoji.
+- Antes de commitear cambios visuales, sirve el build y pasa `impeccable detect` a 390×844 y 1440×900. Las capturas de revisión van a `.impeccable/review/` (ignorado por git).
 
 ## Reglas del dominio (fáciles de equivocar)
 
@@ -40,7 +48,7 @@
 
 - Todos los textos visibles van en español; las fechas usan `es-ES`. Los comentarios del código también en español.
 - Mobile-first y accesible: etiquetas asociadas a los inputs, `aria-live` para errores, foco visible y `prefers-reduced-motion` respetado.
-- `.agents/` y `skills-lock.json` son herramientas del agente y están en `.gitignore`; no los commitees.
+- `.agents/`, `.opencode/skills/`, `.codex/` y `skills-lock.json` son herramientas del agente y están en `.gitignore`; no los commitees.
 
 ## Memoria
 

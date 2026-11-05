@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-05T01:25:51Z",
+  "title": "Design System: Diario de Estudio",
+  "extensions": {
+    "colorMeta": {
+      "wall": {
+        "role": "neutral",
+        "displayName": "Workshop Wall",
+        "canonical": "#d5d8d2",
+        "tonalRamp": ["#2d302c", "#454942", "#5e635a", "#787e74", "#93998e", "#aeb4a9", "#c1c6bd", "#d5d8d2"]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Manila Card",
+        "canonical": "#eadfc4",
+        "tonalRamp": ["#3a3221", "#55492f", "#71613f", "#8d7a52", "#a99366", "#c4ae84", "#d6c5a5", "#eadfc4"]
+      },
+      "card-soft": {
+        "role": "neutral",
+        "displayName": "Card Stock",
+        "canonical": "#f4ecda",
+        "tonalRamp": ["#3b362b", "#575043", "#736a5c", "#8f8576", "#aba192", "#c7bdad", "#ddd6c7", "#f4ecda"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Press Ink",
+        "canonical": "#1a1a17",
+        "tonalRamp": ["#0c0c0b", "#1a1a17", "#2c2c28", "#41413b", "#58574f", "#71706a", "#8e8d86", "#b6b5ae"]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Faded Ink",
+        "canonical": "#5c5647",
+        "tonalRamp": ["#211f19", "#37332a", "#4b463b", "#5c5647", "#726b5a", "#8b8371", "#a79f8c", "#c7c0ae"]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Cardboard Rule",
+        "canonical": "#c9be9f",
+        "tonalRamp": ["#3c372c", "#554e40", "#6e6654", "#8a806a", "#a2977f", "#b5aa8e", "#c9be9f", "#e2dac5"]
+      },
+      "stamp": {
+        "role": "primary",
+        "displayName": "Vermilion Stamp",
+        "canonical": "#a52f23",
+        "tonalRamp": ["#2e0b07", "#4d150f", "#6d1f17", "#8a271d", "#a52f23", "#c0463a", "#d96f63", "#f0b0a7"]
+      },
+      "stamp-deep": {
+        "role": "primary",
+        "displayName": "Ink-Dried Vermilion",
+        "canonical": "#86251b",
+        "tonalRamp": ["#260804", "#410d08", "#5c130d", "#86251b", "#a52f23", "#c0463a", "#d96f63", "#f0b0a7"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Streak Number",
+        "purpose": "Solo el número de la racha, en línea con su unidad y la llama."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Temas de la lista, notas y texto de estado vacío."
+      },
+      "label": {
+        "displayName": "Field Label",
+        "purpose": "Rótulos de campo y de dato, en mayúsculas espaciadas."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-lift",
+        "value": "0 1px 0 rgba(26, 26, 23, 0.14), 0 16px 28px -20px rgba(26, 26, 23, 0.6)",
+        "purpose": "Única elevación de la página: la tarjeta de control."
+      },
+      {
+        "name": "punch-recess",
+        "value": "inset 0 3px 4px rgba(26, 26, 23, 0.5), inset 0 -1px 1px rgba(255, 255, 255, 0.6), 0 0 0 1px rgba(26, 26, 23, 0.12)",
+        "purpose": "Perforación de un día fichado."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Curva de la perforación y del sello."
+      },
+      {
+        "name": "punch",
+        "value": "260ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "El hueco de hoy se perfora al guardar."
+      },
+      {
+        "name": "stamp",
+        "value": "240ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "El sello FICHADO cae y se queda."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "La acción de guardar una sesión; roja de sello y ancha en móvil.",
+      "html": "<button class=\"ds-btn-primary\">Guardar sesión</button>",
+      "css": ".ds-btn-primary { background: var(--color-stamp, #a52f23); color: var(--color-card-soft, #f4ecda); border: 0; border-radius: 3px; padding: 12px 20px; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 600; line-height: 1.2; cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-btn-primary:hover { background: var(--color-stamp-deep, #86251b); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-ink, #1a1a17); outline-offset: 3px; } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Campo de texto sobre papel claro; 16 px para no disparar el zoom de iOS.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Tema</span><input class=\"ds-field-input\" type=\"text\" placeholder=\"Qué has estudiado\" /></label>",
+      "css": ".ds-field { display: block; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; } .ds-field-label { display: block; margin-bottom: 6px; color: var(--color-ink-soft, #5c5647); font-size: 11.2px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; } .ds-field-input { box-sizing: border-box; width: 100%; background: var(--color-card-soft, #f4ecda); color: var(--color-ink, #1a1a17); border: 1px solid var(--color-rule, #c9be9f); border-radius: 3px; padding: 8.8px 9.6px; font: inherit; font-size: 16px; font-variant-numeric: tabular-nums; } .ds-field-input::placeholder { color: var(--color-ink-soft, #5c5647); } .ds-field-input:hover { border-color: var(--color-ink-soft, #5c5647); } .ds-field-input:focus { border-color: var(--color-ink, #1a1a17); outline: 2px solid var(--color-ink, #1a1a17); outline-offset: 3px; }"
+    },
+    {
+      "name": "Streak Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "La tarjeta de control: racha, perforaciones y ficha de datos.",
+      "html": "<section class=\"ds-card\"><p class=\"ds-streak\"><svg class=\"ds-flame\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z\"></path></svg><span class=\"ds-streak-number\">7</span><span class=\"ds-streak-unit\">días seguidos</span></p><p class=\"ds-streak-note\">La racha sigue viva hasta que acabe el día.</p></section>",
+      "css": ".ds-card { background: var(--color-card, #eadfc4); color: var(--color-ink, #1a1a17); border: 1px solid var(--color-rule, #c9be9f); border-radius: 4px; padding: 24px; box-shadow: 0 1px 0 rgba(26, 26, 23, 0.14), 0 16px 28px -20px rgba(26, 26, 23, 0.6); font-family: Archivo, ui-sans-serif, system-ui, sans-serif; } .ds-streak { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin: 0; } .ds-flame { width: 30px; height: 30px; color: var(--color-stamp, #a52f23); align-self: center; } .ds-streak-number { font-size: 84px; font-weight: 700; line-height: 0.82; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; } .ds-streak-unit { font-size: 15.2px; font-weight: 600; } .ds-streak-note { margin: 10px 0 0; color: var(--color-ink-soft, #5c5647); font-size: 12.8px; }"
+    },
+    {
+      "name": "Punch Row",
+      "kind": "custom",
+      "description": "Últimos siete días como perforaciones: hecha, vacía y hoy.",
+      "html": "<ol class=\"ds-punches\"><li class=\"ds-punch-cell\"><span class=\"ds-punch-letter\">L</span><span class=\"ds-punch ds-punch-done\"></span></li><li class=\"ds-punch-cell\"><span class=\"ds-punch-letter\">M</span><span class=\"ds-punch ds-punch-done\"></span></li><li class=\"ds-punch-cell\"><span class=\"ds-punch-letter\">X</span><span class=\"ds-punch ds-punch-empty\"></span></li><li class=\"ds-punch-cell\"><span class=\"ds-punch-letter\">J</span><span class=\"ds-punch ds-punch-empty ds-punch-today\"></span></li></ol>",
+      "css": ".ds-punches { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4.8px; margin: 18.4px 0 0; padding: 14.4px 0 0; border-top: 1px solid var(--color-rule, #c9be9f); list-style: none; } .ds-punch-cell { display: grid; justify-items: center; gap: 5.6px; } .ds-punch-letter { color: var(--color-ink-soft, #5c5647); font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-size: 11.2px; font-weight: 600; letter-spacing: 0.06em; } .ds-punch { display: block; width: 100%; max-width: 38.4px; aspect-ratio: 1; border-radius: 9999px; } .ds-punch-done { background: var(--color-wall, #d5d8d2); box-shadow: inset 0 3px 4px rgba(26, 26, 23, 0.5), inset 0 -1px 1px rgba(255, 255, 255, 0.6), 0 0 0 1px rgba(26, 26, 23, 0.12); } .ds-punch-empty { border: 1px dashed rgba(92, 86, 71, 0.55); } .ds-punch-today { outline: 2px solid var(--color-stamp, #a52f23); outline-offset: 2px; }"
+    },
+    {
+      "name": "FICHADO Stamp",
+      "kind": "custom",
+      "description": "Sello que aparece al guardar una sesión y se queda en la tarjeta.",
+      "html": "<span class=\"ds-stamp\">FICHADO</span>",
+      "css": ".ds-stamp { display: inline-block; border: 2px solid var(--color-stamp, #a52f23); border-radius: 3px; padding: 2.4px 6.4px; color: var(--color-stamp, #a52f23); font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-size: 11.2px; font-weight: 700; line-height: 1.2; letter-spacing: 0.14em; transform: rotate(-6deg); }"
+    },
+    {
+      "name": "Session Row",
+      "kind": "custom",
+      "description": "Una sesión del registro: fecha, tema y minutos separados por una regla.",
+      "html": "<li class=\"ds-session\"><span class=\"ds-session-date\"><strong>05 nov</strong>2026</span><span class=\"ds-session-topic\">Promesas y async/await en JavaScript</span><span class=\"ds-session-minutes\">50 min</span></li>",
+      "css": ".ds-session { display: grid; grid-template-columns: 57.6px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 11.2px 0; border-bottom: 1px solid var(--color-rule, #c9be9f); font-family: Archivo, ui-sans-serif, system-ui, sans-serif; list-style: none; } .ds-session-date { color: var(--color-ink-soft, #5c5647); font-size: 11.2px; line-height: 1.35; font-variant-numeric: tabular-nums; } .ds-session-date strong { display: block; color: var(--color-ink, #1a1a17); font-weight: 600; } .ds-session-topic { font-size: 14.7px; line-height: 1.4; overflow-wrap: anywhere; } .ds-session-minutes { color: var(--color-ink-soft, #5c5647); font-size: 11.5px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Header Bar",
+      "kind": "nav",
+      "description": "Barra de tinta con el nombre del diario y la fecha de hoy.",
+      "html": "<header class=\"ds-header\"><span class=\"ds-header-title\">Diario de Estudio</span><time class=\"ds-header-date\">JUE, 05 NOV</time></header>",
+      "css": ".ds-header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; background: var(--color-ink, #1a1a17); color: var(--color-card-soft, #f4ecda); padding: 12px 20px; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; } .ds-header-title { font-size: 14.4px; font-weight: 600; letter-spacing: 0.02em; } .ds-header-date { color: rgba(213, 216, 210, 0.8); font-size: 11.2px; letter-spacing: 0.14em; text-transform: uppercase; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La Tarjeta de Fichar",
+    "overview": "La página es una tarjeta de control horario de papel manila sobre la pared de un taller: tipografía de formulario, reglas finas de cartón y un sello rojo que cae cuando fichas. El mundo aporta solo tipografía, paleta, densidad y un movimiento de firma; la estructura, la navegación y los controles son los estándar de la web, porque la persona viene a registrar una sesión, no a contemplar un artefacto. La densidad es compacta y numérica: cifras tabulares en racha, récord, semana, minutos y fechas. La tarjeta ocupa el primer viewport con el formulario justo debajo, de modo que registrar no exige buscar nada. La lista de sesiones vive sobre la pared, separada por reglas, no dentro de otra tarjeta. La anti-referencia confirmada es el cuaderno anterior: papel crema, subrayador amarillo y serif editorial. El manila es más industrial que nostálgico y el rojo de sello sustituye al amarillo como único acento.",
+    "keyCharacteristics": [
+      "Papel manila como superficie principal; pared verde-gris fría como fondo.",
+      "Un solo acento saturado, el rojo de sello, reservado a la acción y al estado.",
+      "Cifras tabulares y reglas de 1 px en lugar de cajas y sombras por todas partes.",
+      "Siete perforaciones como lectura rápida de la semana; el sello FICHADO como único movimiento."
+    ],
+    "rules": [
+      {
+        "name": "The One Stamp Rule",
+        "body": "El rojo de sello aparece en tres lugares y solo tres: la acción principal, el día de hoy y el sello que confirma el fichaje. Nunca decora secciones ni titula.",
+        "section": "colors"
+      },
+      {
+        "name": "The Manila Is the Paper Rule",
+        "body": "Las superficies que representan papel usan card o card-soft; la pared nunca se usa como relleno de una tarjeta.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Todo número que se compara en vertical (racha, récord, semana, minutos, fechas) usa font-variant-numeric: tabular-nums.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two-Step Rule",
+        "body": "El salto de escala es corto a propósito: cuerpo 16 px, dato 16 px, título 14 px y número 64–84 px. No hay pasos intermedios decorativos.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Lift Rule",
+        "body": "En una pantalla solo se levanta un elemento: la tarjeta de control. Todo lo demás se separa con reglas o con el cambio de superficie.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar las utilidades de los tokens (bg-card, text-ink-soft, border-rule, text-stamp) en lugar de hex sueltos.",
+      "Do mantener el rojo de sello para la acción, hoy y el sello; si hace falta otro estado, oscurecer el mismo tono.",
+      "Do conservar las cifras tabulares y la alineación por línea base en toda la ficha.",
+      "Do mantener el formulario dentro del primer viewport a 390×844.",
+      "Do pasar impeccable detect contra la página servida antes de commitear cambios visuales."
+    ],
+    "donts": [
+      "Don't volver al papel crema, al subrayador amarillo ni a la serif editorial: son la anti-referencia.",
+      "Don't meter la lista de sesiones en tarjetas hijas ni convertir la ficha en un dashboard de widgets.",
+      "Don't usar emoji como icono; la llama es SVG.",
+      "Don't añadir una segunda sombra de elevación ni halos de color.",
+      "Don't cambiar la clave de localStorage, la forma de la sesión ni las reglas de fecha por motivos visuales."
+    ]
+  }
+}

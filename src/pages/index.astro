@@ -3,99 +3,128 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-	<div class="mx-auto w-full max-w-[40rem] px-5 pt-9 pb-20 sm:px-8">
-		<header class="border-b border-rule pb-4">
-			<h1 class="font-display text-[0.95rem] font-semibold tracking-[0.01em]">Diario de Estudio</h1>
-		</header>
+	<header class="bg-ink text-card-soft">
+		<div
+			class="mx-auto flex w-full max-w-[76rem] items-baseline justify-between gap-4 px-5 py-3 sm:px-8"
+		>
+			<h1 class="font-display text-[0.9rem] font-semibold tracking-[0.02em]">Diario de Estudio</h1>
+			<p class="font-display text-[0.7rem] tracking-[0.14em] uppercase text-wall/80">
+				<time id="fecha-hoy">Hoy</time>
+			</p>
+		</div>
+	</header>
 
-		<main>
-			<!-- Racha actual -->
-			<section class="pt-12">
-				<h2 class="sr-only">Racha actual</h2>
-				<p class="flex items-end gap-2 sm:gap-3">
-					<span class="pb-2 text-[2.2rem] leading-none sm:text-[2.75rem]" aria-hidden="true">🔥</span>
-					<span
-						id="racha-cantidad"
-						class="racha-numero font-display text-[clamp(4.5rem,17vw,7rem)] leading-[0.8] font-extrabold tracking-[-0.045em]"
-					>
-						0
-					</span>
-				</p>
-				<div class="mt-4 flex items-baseline justify-between gap-4">
-					<p id="racha-texto" class="font-display text-sm font-medium text-ink-soft">
-						Empieza hoy tu racha
+	<main class="mx-auto w-full max-w-[76rem] px-5 pt-6 pb-16 sm:px-8 sm:pt-10">
+		<div class="lg:grid lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:items-start lg:gap-10">
+			<div class="min-w-0">
+				<!-- Tarjeta de control: racha, últimos siete días y datos impresos. -->
+				<section class="tarjeta px-5 py-5 sm:px-6 sm:py-6" aria-labelledby="titulo-racha">
+					<h2 id="titulo-racha" class="sr-only">Tu racha</h2>
+
+					<p class="racha-linea">
+						<svg
+							class="racha-fuego"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+							aria-hidden="true"
+							focusable="false"
+						>
+							<path
+								d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"
+							></path>
+						</svg>
+						<span id="racha-cantidad" class="racha-numero">0</span>
+						<span id="racha-unidad" class="racha-unidad">días seguidos</span>
+						<span id="sello" class="sello hidden" aria-hidden="true">FICHADO</span>
 					</p>
-					<p id="racha-record" class="hidden font-display text-xs text-ink-soft"></p>
+					<p id="racha-nota" class="racha-nota">Empieza hoy tu racha.</p>
+
+					<ol id="taladros" class="taladros" aria-label="Últimos siete días"></ol>
+
+					<dl class="ficha-datos">
+						<div>
+							<dt class="rotulo">Récord</dt>
+							<dd id="racha-record">—</dd>
+						</div>
+						<div>
+							<dt class="rotulo">Esta semana</dt>
+							<dd id="tiempo-semana">0 min</dd>
+						</div>
+					</dl>
+				</section>
+
+				<!-- Registro de una sesión. -->
+				<section class="mt-8" aria-labelledby="titulo-form">
+					<h2 id="titulo-form" class="font-display text-sm font-semibold">Añadir sesión</h2>
+
+					<form id="form-sesion" class="mt-4" novalidate>
+						<div class="grid grid-cols-2 gap-3">
+							<div>
+								<label for="fecha" class="rotulo">Fecha</label>
+								<input id="fecha" name="fecha" type="date" required class="campo mt-1.5" />
+							</div>
+							<div>
+								<label for="minutos" class="rotulo">Minutos</label>
+								<input
+									id="minutos"
+									name="minutos"
+									type="number"
+									required
+									min="1"
+									step="1"
+									inputmode="numeric"
+									placeholder="p. ej. 45"
+									class="campo mt-1.5"
+								/>
+							</div>
+						</div>
+
+						<p class="fecha-eco"><time id="fecha-eco"></time></p>
+
+						<div class="mt-3">
+							<label for="tema" class="rotulo">Tema</label>
+							<input
+								id="tema"
+								name="tema"
+								type="text"
+								required
+								autocomplete="off"
+								placeholder="Qué has estudiado"
+								class="campo mt-1.5"
+							/>
+						</div>
+
+						<p id="error" class="error mt-3" role="alert"></p>
+
+						<button
+							type="submit"
+							class="mt-4 w-full rounded-[3px] bg-stamp px-5 py-3 font-display text-sm font-semibold text-card-soft transition-colors hover:bg-stamp-deep active:translate-y-px sm:w-auto"
+						>
+							Guardar sesión
+						</button>
+					</form>
+				</section>
+			</div>
+
+			<!-- Registro de sesiones. -->
+			<section class="mt-10 lg:mt-0" aria-labelledby="titulo-sesiones">
+				<div class="flex items-baseline justify-between gap-3 border-b border-rule pb-2">
+					<h2 id="titulo-sesiones" class="font-display text-sm font-semibold">Sesiones</h2>
+					<p id="total-sesiones" class="font-display text-xs text-ink-soft tabular-nums">
+						0 sesiones
+					</p>
 				</div>
-				<div class="mt-5 flex items-baseline justify-between gap-4 border-t border-rule pt-3">
-					<p class="font-display text-xs text-ink-soft">Esta semana</p>
-					<p id="tiempo-semana" class="font-display text-sm font-medium">0 min</p>
-				</div>
+
+				<ul id="lista-sesiones" class="hidden"></ul>
+				<p id="lista-vacia" class="mt-4 text-sm leading-relaxed text-ink-soft">
+					Aún no hay sesiones. Registra la primera arriba y abre la racha.
+				</p>
 			</section>
+		</div>
+	</main>
 
-			<!-- Formulario -->
-			<section class="mt-12 border-t border-rule pt-8">
-				<h2 class="font-display text-sm font-semibold">Añadir sesión</h2>
-
-				<form id="form-sesion" class="mt-6 space-y-6" novalidate>
-					<div>
-						<label for="fecha" class="block font-display text-xs font-medium text-ink-soft">Fecha</label>
-						<input
-							id="fecha"
-							name="fecha"
-							type="date"
-							required
-							class="mt-1.5 w-full border-b border-rule bg-transparent px-0 py-2 font-display text-base focus:border-ink"
-						/>
-					</div>
-
-					<div>
-						<label for="tema" class="block font-display text-xs font-medium text-ink-soft">Tema</label>
-						<input
-							id="tema"
-							name="tema"
-							type="text"
-							required
-							autocomplete="off"
-							placeholder="Qué has estudiado"
-							class="mt-1.5 w-full border-b border-rule bg-transparent px-0 py-2 font-display text-base placeholder:text-ink-soft/50 focus:border-ink"
-						/>
-					</div>
-
-					<div>
-						<label for="minutos" class="block font-display text-xs font-medium text-ink-soft">Minutos</label>
-						<input
-							id="minutos"
-							name="minutos"
-							type="number"
-							required
-							min="1"
-							step="1"
-							inputmode="numeric"
-							placeholder="45"
-							class="mt-1.5 w-full border-b border-rule bg-transparent px-0 py-2 font-display text-base placeholder:text-ink-soft/50 focus:border-ink"
-						/>
-					</div>
-
-					<p id="error" class="hidden font-display text-xs font-medium text-alerta" role="alert" aria-live="polite"></p>
-
-					<button
-						type="submit"
-						class="w-full rounded-[3px] bg-ink px-6 py-3 font-display text-sm font-semibold text-paper transition-colors hover:bg-[#0d1522] sm:w-auto"
-					>
-						Guardar sesión
-					</button>
-				</form>
-			</section>
-
-			<!-- Lista de sesiones -->
-			<section class="mt-12">
-				<h2 class="font-display text-sm font-semibold">Sesiones</h2>
-				<ul id="lista-sesiones" class="mt-4 hidden border-t border-rule"></ul>
-				<p id="lista-vacia" class="mt-3 text-sm text-ink-soft italic">Todavía no has registrado ninguna sesión.</p>
-			</section>
-		</main>
-	</div>
+	<!-- Anuncios para lectores de pantalla: solo cambian al guardar. -->
+	<p id="anuncio" class="sr-only" role="status" aria-live="polite"></p>
 </Layout>
 
 <script>
@@ -109,10 +138,17 @@ import Layout from "../layouts/Layout.astro";
 	const cajaError = document.getElementById("error");
 	const lista = document.getElementById("lista-sesiones");
 	const listaVacia = document.getElementById("lista-vacia");
+	const totalSesiones = document.getElementById("total-sesiones");
 	const rachaCantidad = document.getElementById("racha-cantidad");
-	const rachaTexto = document.getElementById("racha-texto");
+	const rachaUnidad = document.getElementById("racha-unidad");
+	const rachaNota = document.getElementById("racha-nota");
 	const rachaRecord = document.getElementById("racha-record");
 	const tiempoSemana = document.getElementById("tiempo-semana");
+	const taladros = document.getElementById("taladros");
+	const sello = document.getElementById("sello");
+	const anuncio = document.getElementById("anuncio");
+	const fechaHoy = document.getElementById("fecha-hoy");
+	const fechaEco = document.getElementById("fecha-eco");
 
 	/** Devuelve la fecha local en formato "AAAA-MM-DD".
 	 *  Usamos getFullYear/getMonth/getDate (hora local), nunca toISOString(). */
@@ -130,6 +166,12 @@ import Layout from "../layouts/Layout.astro";
 		const fecha = new Date(anio, mes - 1, dia, 12, 0, 0);
 		fecha.setDate(fecha.getDate() + dias);
 		return fechaLocal(fecha);
+	}
+
+	/** Convierte "AAAA-MM-DD" en un Date local a mediodía. */
+	function fechaDeISO(fechaISO) {
+		const [anio, mes, dia] = fechaISO.split("-").map(Number);
+		return new Date(anio, mes - 1, dia, 12, 0, 0);
 	}
 
 	function leerSesiones() {
@@ -196,8 +238,7 @@ import Layout from "../layouts/Layout.astro";
 
 	/** Lunes de la semana a la que pertenece una fecha "AAAA-MM-DD". */
 	function inicioSemana(fechaISO) {
-		const [anio, mes, dia] = fechaISO.split("-").map(Number);
-		const fecha = new Date(anio, mes - 1, dia, 12, 0, 0);
+		const fecha = fechaDeISO(fechaISO);
 		const offset = (fecha.getDay() + 6) % 7; // getDay(): 0 = domingo
 		fecha.setDate(fecha.getDate() - offset);
 		return fechaLocal(fecha);
@@ -228,12 +269,28 @@ import Layout from "../layouts/Layout.astro";
 
 	const formatoDia = new Intl.DateTimeFormat("es-ES", { day: "2-digit" });
 	const formatoMes = new Intl.DateTimeFormat("es-ES", { month: "short" });
+	const formatoCabecera = new Intl.DateTimeFormat("es-ES", {
+		weekday: "short",
+		day: "2-digit",
+		month: "short",
+	});
+	const formatoLetra = new Intl.DateTimeFormat("es-ES", { weekday: "narrow" });
+	const formatoLargo = new Intl.DateTimeFormat("es-ES", {
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+	});
+	const formatoFechaLarga = new Intl.DateTimeFormat("es-ES", {
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
 
 	/** Crea la fila de una sesión con createElement + textContent
 	 *  para que el texto del usuario se muestre tal cual. */
 	function crearFila(sesion) {
-		const [anio, mes, dia] = sesion.date.split("-").map(Number);
-		const fecha = new Date(anio, mes - 1, dia, 12, 0, 0);
+		const fecha = fechaDeISO(sesion.date);
 
 		const fila = document.createElement("li");
 		fila.className = "sesion";
@@ -243,7 +300,7 @@ import Layout from "../layouts/Layout.astro";
 
 		const diaConMes = document.createElement("strong");
 		diaConMes.textContent = `${formatoDia.format(fecha)} ${formatoMes.format(fecha)}`;
-		columnaFecha.append(diaConMes, String(anio));
+		columnaFecha.append(diaConMes, String(fecha.getFullYear()));
 
 		const tema = document.createElement("span");
 		tema.className = "sesion-tema";
@@ -257,7 +314,51 @@ import Layout from "../layouts/Layout.astro";
 		return fila;
 	}
 
-	function pintar() {
+	/** Pinta los últimos siete días como una fila de taladros.
+	 *  "marcarHoy" dispara la perforación del día recién fichado. */
+	function pintarTaladros(sesiones, marcarHoy) {
+		const diasConSesion = new Set(sesiones.map((sesion) => sesion.date));
+		const hoy = fechaLocal(new Date());
+		const celdas = [];
+
+		for (let atras = 6; atras >= 0; atras -= 1) {
+			const fechaISO = sumarDias(hoy, -atras);
+			const fecha = fechaDeISO(fechaISO);
+			const hecho = diasConSesion.has(fechaISO);
+			const esHoy = fechaISO === hoy;
+
+			const celda = document.createElement("li");
+			celda.className = "taladro-celda";
+			if (esHoy) celda.setAttribute("aria-current", "date");
+
+			// La letra es decorativa: el texto oculto da el día completo.
+			const letra = document.createElement("span");
+			letra.className = "taladro-letra";
+			letra.setAttribute("aria-hidden", "true");
+			letra.textContent = formatoLetra.format(fecha).charAt(0).toUpperCase();
+
+			const hueco = document.createElement("span");
+			hueco.className = "taladro";
+			hueco.setAttribute("aria-hidden", "true");
+			hueco.classList.add(hecho ? "taladro--hecho" : "taladro--pendiente");
+			if (esHoy) hueco.classList.add("taladro--hoy");
+			if (esHoy && marcarHoy) hueco.classList.add("taladro--nuevo");
+
+			const descripcion = document.createElement("span");
+			descripcion.className = "sr-only";
+			descripcion.textContent = `${formatoLargo.format(fecha)}: ${
+				hecho ? "con sesión" : "sin sesión"
+			}${esHoy ? ", hoy" : ""}`;
+
+			celda.append(letra, hueco, descripcion);
+			celdas.push(celda);
+		}
+
+		taladros.replaceChildren(...celdas);
+	}
+
+	/** Repinta la tarjeta y la lista. Devuelve la racha para poder anunciarla. */
+	function pintar({ celebrar = false } = {}) {
 		const sesiones = leerSesiones().sort(
 			(a, b) => b.date.localeCompare(a.date) || b.creado - a.creado,
 		);
@@ -265,26 +366,65 @@ import Layout from "../layouts/Layout.astro";
 		// Racha
 		const racha = calcularRacha(sesiones);
 		rachaCantidad.textContent = String(racha);
-		rachaTexto.textContent =
-			racha === 0 ? "Empieza hoy tu racha" : racha === 1 ? "día seguido" : "días seguidos";
+		rachaUnidad.textContent = racha === 1 ? "día seguido" : "días seguidos";
+		rachaNota.textContent =
+			racha === 0 ? "Empieza hoy tu racha." : "La racha sigue viva hasta que acabe el día.";
 
-		// Récord
+		// Récord y semana
 		const record = calcularRecord(sesiones);
-		rachaRecord.textContent = record === 1 ? "Récord: 1 día" : `Récord: ${record} días`;
-		rachaRecord.classList.toggle("hidden", record === 0);
-
-		// Tiempo de esta semana
+		rachaRecord.textContent = record === 0 ? "—" : record === 1 ? "1 día" : `${record} días`;
 		tiempoSemana.textContent = formatearDuracion(minutosSemana(sesiones));
 
-		// Lista
+		// Taladros y lista
+		pintarTaladros(sesiones, celebrar);
 		lista.replaceChildren(...sesiones.map(crearFila));
 		lista.classList.toggle("hidden", sesiones.length === 0);
 		listaVacia.classList.toggle("hidden", sesiones.length > 0);
+		totalSesiones.textContent =
+			sesiones.length === 1 ? "1 sesión" : `${sesiones.length} sesiones`;
+
+		return racha;
 	}
 
-	function mostrarError(mensaje) {
+	const campos = [inputFecha, inputTema, inputMinutos];
+
+	/** Escribe la fecha elegida en español junto al control nativo,
+	 *  para que el formato del navegador no deje la fecha ambigua. */
+	function actualizarFechaEco() {
+		const valor = inputFecha.value;
+
+		if (!valor) {
+			fechaEco.textContent = "Sin fecha";
+			fechaEco.removeAttribute("datetime");
+			return;
+		}
+
+		fechaEco.textContent = formatoFechaLarga.format(fechaDeISO(valor));
+		fechaEco.setAttribute("datetime", valor);
+	}
+
+	/** Muestra un error y lo asocia al campo que lo provoca. */
+	function mostrarError(mensaje, campo) {
 		cajaError.textContent = mensaje;
-		cajaError.classList.toggle("hidden", mensaje === "");
+
+		for (const otro of campos) {
+			otro.removeAttribute("aria-invalid");
+			otro.removeAttribute("aria-describedby");
+		}
+
+		if (campo) {
+			campo.setAttribute("aria-invalid", "true");
+			campo.setAttribute("aria-describedby", "error");
+			campo.focus();
+		}
+	}
+
+	/** Estampa el sello cada vez que se guarda una sesión. */
+	function estamparSello() {
+		sello.classList.remove("hidden");
+		sello.classList.remove("sello--nuevo");
+		void sello.offsetWidth; // reinicia la animación
+		sello.classList.add("sello--nuevo");
 	}
 
 	form.addEventListener("submit", (evento) => {
@@ -295,20 +435,17 @@ import Layout from "../layouts/Layout.astro";
 		const minutos = Number(inputMinutos.value);
 
 		if (!fecha) {
-			mostrarError("Elige una fecha.");
-			inputFecha.focus();
+			mostrarError("Elige una fecha para la sesión.", inputFecha);
 			return;
 		}
 
 		if (tema === "") {
-			mostrarError("Escribe un tema.");
-			inputTema.focus();
+			mostrarError("Escribe el tema que has estudiado.", inputTema);
 			return;
 		}
 
 		if (!Number.isInteger(minutos) || minutos <= 0) {
-			mostrarError("Los minutos tienen que ser un número mayor que 0.");
-			inputMinutos.focus();
+			mostrarError("Los minutos tienen que ser un número entero mayor que 0.", inputMinutos);
 			return;
 		}
 
@@ -325,12 +462,22 @@ import Layout from "../layouts/Layout.astro";
 		form.reset();
 		inputFecha.value = fechaLocal(new Date());
 		mostrarError("");
-		pintar();
+		actualizarFechaEco();
+		const racha = pintar({ celebrar: true });
+		estamparSello();
+		anuncio.textContent = `Sesión guardada. Racha de ${racha} ${racha === 1 ? "día" : "días"}.`;
 	});
 
-	form.addEventListener("input", () => mostrarError(""));
+	// Al escribir se limpia el error anterior y se actualiza el eco de la fecha.
+	form.addEventListener("input", () => {
+		mostrarError("");
+		actualizarFechaEco();
+	});
 
-	// Fecha de hoy por defecto y primera pintada.
+	// Cabecera con la fecha de hoy y primera pintada.
+	fechaHoy.textContent = formatoCabecera.format(new Date());
+	fechaHoy.setAttribute("datetime", fechaLocal(new Date()));
 	inputFecha.value = fechaLocal(new Date());
+	actualizarFechaEco();
 	pintar();
 </script>
