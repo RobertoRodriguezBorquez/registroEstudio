@@ -29,4 +29,6 @@ la semana empiece en lunes.
 - El detector necesita un Chrome: `IMPECCABLE_BROWSER` apunta al chromium de Playwright y
 `LD_LIBRARY_PATH` a `/tmp/opencode/sysroot/usr/lib/x86_64-linux-gnu` si faltan libnspr4/libnss3.
 ## Próximos pasos
-- Borrar del remoto las ramas `feature/rachas` y `feature/tiempoSemana` cuando se quiera.
+- El rediseño está fusionado en `master` (merge `98b34de`) y desplegado en `origin`.
+- `feature/rediseno` se conserva por si se quiere abrir un PR de revisión; las ramas
+`feature/rachas` y `feature/tiempoSemana` ya se borraron del remoto.
