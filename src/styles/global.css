@@ -1,31 +1,50 @@
 @import "tailwindcss";
 
-/* Paleta y tipografías del proyecto.
-   Al declararlas dentro de @theme, Tailwind crea clases como
-   bg-paper, text-ink, border-rule o font-display. */
+/* Mundo "Fichar": tarjeta de control horario.
+   Paleta y tipografía viven en @theme para que Tailwind genere utilidades
+   como bg-card, text-ink-soft o text-stamp. */
 @theme {
-  --color-paper: #edf0f2;
-  --color-ink: #16202e;
-  --color-ink-soft: #5c6675;
-  --color-rule: #c6cdd6;
-  --color-marker: #f3e43b;
-  --color-alerta: #a3261b;
+  --color-wall: #d5d8d2;
+  --color-card: #eadfc4;
+  --color-card-soft: #f4ecda;
+  --color-ink: #1a1a17;
+  --color-ink-soft: #5c5647;
+  --color-rule: #c9be9f;
+  --color-stamp: #a52f23;
+  --color-stamp-deep: #86251b;
 
-  --font-display: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Literata", Georgia, "Times New Roman", serif;
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Archivo", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
+  :root {
+    /* Los controles nativos (selector de fecha, scroll) siguen la paleta clara. */
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    background-color: var(--color-paper);
+    background-color: var(--color-wall);
     color: var(--color-ink);
     font-family: var(--font-body);
+    text-wrap: pretty;
+    caret-color: var(--color-stamp);
+    scrollbar-color: var(--color-rule) var(--color-wall);
     -webkit-font-smoothing: antialiased;
   }
 
+  h1,
+  h2 {
+    text-wrap: balance;
+  }
+
   ::selection {
-    background-color: var(--color-marker);
-    color: var(--color-ink);
+    background-color: var(--color-stamp);
+    color: var(--color-card-soft);
   }
 
   :focus-visible {
@@ -33,7 +52,6 @@
     outline-offset: 3px;
   }
 
-  /* Si el usuario pide menos movimiento, desactivamos las animaciones. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -44,53 +62,262 @@
   }
 }
 
-/* El número de la racha lleva detrás un trazo de subrayador.
-   Es el único elemento "llamativo" de la página. */
-.racha-numero {
+/* La tarjeta de control: papel manila con una sombra corta y descentrada. */
+.tarjeta {
   position: relative;
-  display: inline-block;
-  isolation: isolate;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 0 rgba(26, 26, 23, 0.14),
+    0 16px 28px -20px rgba(26, 26, 23, 0.6);
 }
 
-.racha-numero::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  right: -0.06em;
-  bottom: 0.06em;
-  left: -0.03em;
-  height: 0.44em;
-  background-color: var(--color-marker);
-  transform: rotate(-1.4deg) skewX(-12deg);
-  transform-origin: left bottom;
-  animation: trazo 620ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms both;
+/* Racha: el número y su unidad leen como una sola frase. */
+.racha-linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
 }
 
-@keyframes trazo {
+.racha-fuego {
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--color-stamp);
+  transform: translateY(-0.12em);
+}
+
+.racha-numero {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 16vw, 5.25rem);
+  font-weight: 700;
+  line-height: 0.82;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.racha-unidad {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.racha-nota {
+  margin-top: 0.65rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--color-ink-soft);
+}
+
+/* Fila de taladros: un hueco por día de los últimos siete. */
+.taladros {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
+  margin-top: 1.15rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+.taladro-celda {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+}
+
+.taladro-letra {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.taladro {
+  display: block;
+  width: 100%;
+  max-width: 2.4rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+/* Perforación real: el hueco deja ver la pared y el borde interior lo hunde. */
+.taladro--hecho {
+  background-color: var(--color-wall);
+  box-shadow:
+    inset 0 3px 4px rgba(26, 26, 23, 0.5),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.6),
+    0 0 0 1px rgba(26, 26, 23, 0.12);
+}
+
+.taladro--pendiente {
+  border: 1px dashed rgba(92, 86, 71, 0.55);
+}
+
+.taladro--hoy {
+  outline: 2px solid var(--color-stamp);
+  outline-offset: 2px;
+}
+
+.taladro--nuevo {
+  animation: taladrar 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes taladrar {
   from {
-    transform: rotate(-1.4deg) skewX(-12deg) scaleX(0);
+    transform: scale(1.4);
+    opacity: 0;
   }
   to {
-    transform: rotate(-1.4deg) skewX(-12deg) scaleX(1);
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
-/* Cada sesión es una fila de cuaderno: fecha a la izquierda,
-   tema en el centro y minutos a la derecha. */
+/* Campos del formulario: papel más claro que la tarjeta. */
+.campo {
+  width: 100%;
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+  background-color: var(--color-card-soft);
+  padding: 0.55rem 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.campo::placeholder {
+  color: var(--color-ink-soft);
+}
+
+.campo:hover {
+  border-color: var(--color-ink-soft);
+}
+
+.campo:focus {
+  border-color: var(--color-ink);
+}
+
+.campo[aria-invalid="true"] {
+  border-color: var(--color-stamp);
+}
+
+/* El selector de fecha nativo se integra en la paleta. */
+.campo[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.campo[type="date"]:hover::-webkit-calendar-picker-indicator {
+  opacity: 0.9;
+}
+
+/* Eco en español de la fecha elegida: desambigua el formato nativo. */
+.fecha-eco {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--color-ink-soft);
+}
+
+/* Rótulos de campo: versalitas pequeñas y espaciadas. */
+.rotulo {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+/* Datos impresos de la tarjeta: récord y semana. */
+.ficha-datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+.ficha-datos > div + div {
+  padding-left: 0.85rem;
+  border-left: 1px solid var(--color-rule);
+}
+
+.ficha-datos dd {
+  margin-top: 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mensaje de error: ocupa sitio solo cuando hay texto. */
+.error {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--color-stamp);
+}
+
+.error:empty {
+  display: none;
+}
+
+/* El sello que cae al guardar: el único momento de movimiento de la página. */
+.sello {
+  align-self: center;
+  margin-left: auto;
+  border: 2px solid var(--color-stamp);
+  border-radius: 3px;
+  padding: 0.15rem 0.4rem;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  color: var(--color-stamp);
+  transform: rotate(-6deg);
+  pointer-events: none;
+}
+
+.sello--nuevo {
+  animation: estampar 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes estampar {
+  from {
+    transform: rotate(-6deg) scale(1.7);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-6deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Cada sesión es una fila del registro. */
 .sesion {
   display: grid;
-  grid-template-columns: 4.5rem 1fr auto;
-  gap: 1rem;
+  grid-template-columns: 3.6rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
   align-items: baseline;
-  padding: 0.85rem 0;
+  padding: 0.7rem 0;
   border-bottom: 1px solid var(--color-rule);
 }
 
 .sesion-fecha {
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   line-height: 1.35;
   color: var(--color-ink-soft);
+  font-variant-numeric: tabular-nums;
 }
 
 .sesion-fecha strong {
@@ -100,15 +327,15 @@
 }
 
 .sesion-tema {
-  font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.92rem;
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
 .sesion-minutos {
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 500;
   color: var(--color-ink-soft);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;

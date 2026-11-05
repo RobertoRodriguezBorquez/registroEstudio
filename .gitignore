@@ -26,3 +26,12 @@ pnpm-debug.log*
 # agent tooling
 .agents/
 skills-lock.json
+.opencode/skills/
+.opencode/commands/impeccable.md
+.codex/
+
+# impeccable: estado local y capturas de revisión
+.impeccable/build/
+.impeccable/review/
+.impeccable/mocks/
+.impeccable/config.local.json
