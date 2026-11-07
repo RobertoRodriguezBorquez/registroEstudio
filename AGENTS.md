@@ -23,7 +23,7 @@
 
 - Instalado con `@tailwindcss/vite` en `astro.config.mjs`. No hay `tailwind.config.*`; no lo añadas.
 - Los tokens se declaran en `@theme` dentro de `src/styles/global.css`: `wall`, `card`, `card-soft`, `ink`, `ink-soft`, `rule`, `stamp`, `stamp-deep`, y `font-display` / `font-body`. Usa las utilidades que generan (`text-ink-soft`, `border-rule`, `font-display`) en vez de valores hex directos.
-- `.tarjeta`, `.campo`, `.taladro*`, `.sello`, `.ficha-datos`, `.rotulo`, `.racha-*`, `.sesion*` y `.fecha-eco` están definidas fuera de `@layer`, así que sobrescriben a las utilidades de Tailwind. Edítalas en `global.css` en lugar de añadir clases de utilidad que compitan.
+- `.tarjeta`, `.campo`, `.taladro*`, `.sello`, `.ficha-datos`, `.rotulo`, `.racha-*`, `.sesion*`, `.fecha-eco` y `.calendario*` están definidas fuera de `@layer`, así que sobrescriben a las utilidades de Tailwind. Edítalas en `global.css` en lugar de añadir clases de utilidad que compitan.
 - El `<script>` de la página es JavaScript plano aunque `tsconfig.json` extienda `astro/tsconfigs/strict`; no hay archivos `.ts`.
 
 ## Diseño
@@ -42,6 +42,7 @@
 - Récord = tirada consecutiva más larga de días con sesión. Se deriva de las sesiones con `calcularRecord()`, no se persiste, e ignora fechas futuras. `calcularRacha()` da la racha viva actual.
 - Tiempo semanal = suma de `minutes` de las sesiones entre el lunes y el domingo de la semana actual, hasta hoy. Se deriva con `minutosSemana()`; `inicioSemana()` asume lunes como primer día. Las fechas futuras no cuentan.
 - Persistencia: clave `diario-estudio.sesiones.v1`; forma de sesión `{ id, date, topic, minutes, creado }`. Se pinta ordenado por `date` desc y luego `creado` desc.
+- El calendario mensual visualiza los días con sesión y usa las mismas funciones de fecha local (`sumarDias`, `fechaLocal`) para navegar meses; las fechas futuras se muestran desactivadas y nunca cuentan.
 - Pinta el tema escrito por el usuario con `textContent`, nunca con `innerHTML`.
 
 ## Convenciones

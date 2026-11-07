@@ -302,6 +302,149 @@
   }
 }
 
+/* Calendario mensual: visualiza los días con sesión como perforaciones. */
+.calendario {
+  margin-top: 1.5rem;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  padding: 1rem;
+  min-width: 0;
+}
+
+.calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.2rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.dia {
+  box-sizing: border-box;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.calendario-mes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.calendario-mes h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.btn-mes {
+  background: none;
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+  color: var(--color-ink);
+  cursor: pointer;
+  padding: 0.25rem 0.55rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.btn-mes:hover {
+  border-color: var(--color-ink-soft);
+}
+
+.btn-mes:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.calendario-semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 0.4rem;
+}
+
+.dia-semana {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-soft);
+  text-align: center;
+  padding: 0.25rem 0;
+}
+
+.calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.2rem;
+}
+
+.dia {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.dia:hover {
+  background-color: var(--color-card-soft);
+}
+
+.dia--futuro {
+  color: var(--color-ink-soft);
+  cursor: default;
+}
+
+.dia--futuro:hover {
+  background-color: transparent;
+}
+
+.dia--hecho::after {
+  content: "";
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  background-color: var(--color-wall);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 1px 2px rgba(26, 26, 23, 0.5),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.dia--hoy {
+  outline: 2px solid var(--color-stamp);
+  outline-offset: 1px;
+}
+
+.dia--seleccionado {
+  background-color: var(--color-stamp);
+  color: var(--color-card-soft);
+}
+
+.dia--seleccionado::after {
+  display: none;
+}
+
 /* Cada sesión es una fila del registro. */
 .sesion {
   display: grid;
