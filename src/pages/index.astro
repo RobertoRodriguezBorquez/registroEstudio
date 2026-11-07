@@ -39,7 +39,29 @@ import Layout from "../layouts/Layout.astro";
 					</p>
 					<p id="racha-nota" class="racha-nota">Empieza hoy tu racha.</p>
 
-					<ol id="taladros" class="taladros" aria-label="Últimos siete días"></ol>
+					<!-- Mini calendario: los días con sesión como perforaciones. -->
+					<div class="mini-calendario">
+						<div class="mini-calendario-mes">
+							<button type="button" id="cal-prev" class="btn-mes" aria-label="Mes anterior">
+								‹
+							</button>
+							<p id="cal-mes" class="mini-calendario-titulo" aria-live="polite">
+								Mes año
+							</p>
+							<button type="button" id="cal-next" class="btn-mes" aria-label="Mes siguiente">
+								›
+							</button>
+						</div>
+
+						<div id="cal-semana" class="mini-calendario-semana" aria-hidden="true"></div>
+
+						<div
+							id="cal-grid"
+							class="mini-calendario-grid"
+							role="group"
+							aria-label="Días del mes"
+						></div>
+					</div>
 
 					<dl class="ficha-datos">
 						<div>
@@ -120,41 +142,7 @@ import Layout from "../layouts/Layout.astro";
 					Aún no hay sesiones. Registra la primera arriba y abre la racha.
 				</p>
 			</section>
-
-		<!-- Calendario mensual: días registrados. -->
-		<section class="calendario mt-10 lg:mt-0" aria-labelledby="titulo-calendario">
-			<h2 id="titulo-calendario" class="sr-only">Calendario</h2>
-
-			<div class="calendario-mes">
-				<button
-					type="button"
-					id="cal-prev"
-					class="btn-mes"
-					aria-label="Mes anterior"
-				>
-					‹
-				</button>
-				<h2 id="cal-mes" class="calendario-mes-titulo">Mes año</h2>
-				<button
-					type="button"
-					id="cal-next"
-					class="btn-mes"
-					aria-label="Mes siguiente"
-				>
-					›
-				</button>
-			</div>
-
-			<div id="cal-semana" class="calendario-semana" aria-hidden="true"></div>
-
-			<div
-				id="cal-grid"
-				class="calendario-grid"
-				role="grid"
-				aria-label="Días del mes"
-			></div>
-		</section>
-	</div>
+		</div>
 </main>
 
 	<!-- Anuncios para lectores de pantalla: solo cambian al guardar. -->
@@ -162,6 +150,16 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 
 <script>
+	import {
+		fechaLocal,
+		fechaDeISO,
+		esFechaISOValida,
+		sumarDias,
+		mesVecino,
+		construirCeldas,
+		etiquetasSemana,
+	} from "../scripts/calendario.js";
+
 	// Clave con la que guardamos las sesiones en el navegador.
 	const CLAVE = "diario-estudio.sesiones.v1";
 
@@ -178,7 +176,6 @@ import Layout from "../layouts/Layout.astro";
 	const rachaNota = document.getElementById("racha-nota");
 	const rachaRecord = document.getElementById("racha-record");
 	const tiempoSemana = document.getElementById("tiempo-semana");
-	const taladros = document.getElementById("taladros");
 	const sello = document.getElementById("sello");
 	const anuncio = document.getElementById("anuncio");
 	const fechaHoy = document.getElementById("fecha-hoy");
@@ -189,36 +186,24 @@ import Layout from "../layouts/Layout.astro";
 	const btnCalPrev = document.getElementById("cal-prev");
 	const btnCalNext = document.getElementById("cal-next");
 
-	/** Devuelve la fecha local en formato "AAAA-MM-DD".
-	 *  Usamos getFullYear/getMonth/getDate (hora local), nunca toISOString(). */
-	function fechaLocal(fecha) {
-		const anio = fecha.getFullYear();
-		const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-		const dia = String(fecha.getDate()).padStart(2, "0");
-		return `${anio}-${mes}-${dia}`;
-	}
-
-	/** Suma o resta días a una fecha "AAAA-MM-DD" sin pasar por UTC.
-	 *  Fijamos las 12:00 para que el cambio de hora no mueva el día. */
-	function sumarDias(fechaISO, dias) {
-		const [anio, mes, dia] = fechaISO.split("-").map(Number);
-		const fecha = new Date(anio, mes - 1, dia, 12, 0, 0);
-		fecha.setDate(fecha.getDate() + dias);
-		return fechaLocal(fecha);
-	}
-
-	/** Convierte "AAAA-MM-DD" en un Date local a mediodía. */
-	function fechaDeISO(fechaISO) {
-		const [anio, mes, dia] = fechaISO.split("-").map(Number);
-		return new Date(anio, mes - 1, dia, 12, 0, 0);
-	}
-
+	/** Lee las sesiones guardadas e ignora las entradas corruptas.
+	 *  Así un `localStorage` editado a mano no rompe la lista ni el calendario. */
 	function leerSesiones() {
 		try {
 			const guardado = localStorage.getItem(CLAVE);
 			if (!guardado) return [];
 			const sesiones = JSON.parse(guardado);
-			return Array.isArray(sesiones) ? sesiones : [];
+			if (!Array.isArray(sesiones)) return [];
+
+			return sesiones.filter(
+				(sesion) =>
+					sesion !== null &&
+					typeof sesion === "object" &&
+					esFechaISOValida(sesion.date) &&
+					typeof sesion.topic === "string" &&
+					typeof sesion.minutes === "number" &&
+					Number.isFinite(sesion.minutes),
+			);
 		} catch {
 			return [];
 		}
@@ -313,12 +298,6 @@ import Layout from "../layouts/Layout.astro";
 		day: "2-digit",
 		month: "short",
 	});
-	const formatoLetra = new Intl.DateTimeFormat("es-ES", { weekday: "narrow" });
-	const formatoLargo = new Intl.DateTimeFormat("es-ES", {
-		weekday: "long",
-		day: "numeric",
-		month: "long",
-	});
 	const formatoFechaLarga = new Intl.DateTimeFormat("es-ES", {
 		weekday: "long",
 		day: "numeric",
@@ -328,10 +307,6 @@ import Layout from "../layouts/Layout.astro";
 	const formatoMesYear = new Intl.DateTimeFormat("es-ES", {
 		month: "long",
 		year: "numeric",
-	});
-	const formatoDiaNumero = new Intl.DateTimeFormat("es-ES", { day: "numeric" });
-	const formatoDiaSemana = new Intl.DateTimeFormat("es-ES", {
-		weekday: "narrow",
 	});
 
 	/** Mes y año que muestra el calendario. Empieza en el mes actual. */
@@ -364,138 +339,81 @@ import Layout from "../layouts/Layout.astro";
 		return fila;
 	}
 
-	/** Pinta los últimos siete días como una fila de taladros.
-	 *  "marcarHoy" dispara la perforación del día recién fichado. */
-	function pintarTaladros(sesiones, marcarHoy) {
-		const diasConSesion = new Set(sesiones.map((sesion) => sesion.date));
-		const hoy = fechaLocal(new Date());
-		const celdas = [];
-
-		for (let atras = 6; atras >= 0; atras -= 1) {
-			const fechaISO = sumarDias(hoy, -atras);
-			const fecha = fechaDeISO(fechaISO);
-			const hecho = diasConSesion.has(fechaISO);
-			const esHoy = fechaISO === hoy;
-
-			const celda = document.createElement("li");
-			celda.className = "taladro-celda";
-			if (esHoy) celda.setAttribute("aria-current", "date");
-
-			// La letra es decorativa: el texto oculto da el día completo.
-			const letra = document.createElement("span");
-			letra.className = "taladro-letra";
-			letra.setAttribute("aria-hidden", "true");
-			letra.textContent = formatoLetra.format(fecha).charAt(0).toUpperCase();
-
-			const hueco = document.createElement("span");
-			hueco.className = "taladro";
-			hueco.setAttribute("aria-hidden", "true");
-			hueco.classList.add(hecho ? "taladro--hecho" : "taladro--pendiente");
-			if (esHoy) hueco.classList.add("taladro--hoy");
-			if (esHoy && marcarHoy) hueco.classList.add("taladro--nuevo");
-
-			const descripcion = document.createElement("span");
-			descripcion.className = "sr-only";
-			descripcion.textContent = `${formatoLargo.format(fecha)}: ${
-				hecho ? "con sesión" : "sin sesión"
-			}${esHoy ? ", hoy" : ""}`;
-
-			celda.append(letra, hueco, descripcion);
-			celdas.push(celda);
-		}
-
-		taladros.replaceChildren(...celdas);
-	}
-
-	/** Devuelve el primer día del mes siguiente o anterior a una fecha. */
-	function mesVecino(fechaISO, direccion) {
-		const fecha = fechaDeISO(fechaISO);
-		const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1, 12);
-		primerDia.setMonth(primerDia.getMonth() + direccion);
-		return fechaLocal(primerDia);
+	/** Pinta una sola vez la cabecera de días, siempre de lunes a domingo. */
+	function pintarCabeceraCalendario() {
+		calSemana.replaceChildren(
+			...etiquetasSemana().map((texto) => {
+				const etiqueta = document.createElement("span");
+				etiqueta.className = "dia-semana";
+				etiqueta.textContent = texto;
+				return etiqueta;
+			}),
+		);
 	}
 
 	/** Pinta la rejilla del mes indicado en calFecha.
-	 *  Los días con sesión se muestran como perforación; hoy tiene aro de sello;
-	 *  los días futuros están desactivados. */
-	function pintarCalendario() {
-		const sesiones = leerSesiones();
-		const diasConSesion = new Set(sesiones.map((sesion) => sesion.date));
+	 *  Los días con sesión se leen como perforación; hoy lleva el aro del sello;
+	 *  los días futuros quedan desactivados y nunca cuentan como hechos.
+	 *  Es solo visual: la fecha se elige en el formulario. */
+	function pintarCalendario(sesiones) {
+		const diasConSesion = new Set(
+			sesiones
+				.map((sesion) => sesion.date)
+				.filter((fecha) => typeof fecha === "string"),
+		);
 		const hoy = fechaLocal(new Date());
 
 		const anio = calFecha.getFullYear();
 		const mes = calFecha.getMonth();
+		const titulo = formatoMesYear.format(calFecha);
 
-		calMes.textContent = formatoMesYear.format(calFecha);
+		calMes.textContent = titulo;
+		calGrid.setAttribute("aria-label", `Días de ${titulo}`);
 
-		// Días de la semana (lunes a domingo).
-		calSemana.replaceChildren(
-			...Array.from({ length: 7 }).map((_, i) => {
-				const etiqueta = document.createElement("span");
-				etiqueta.className = "dia-semana";
-				etiqueta.textContent = formatoDiaSemana.format(
-					new Date(anio, mes, 1 + i, 12),
-				);
-				return etiqueta;
-			}),
-		);
-
-		// Primer día del mes y día de la semana (lunes = 0).
-		const primero = new Date(anio, mes, 1, 12);
-		const inicio = (primero.getDay() + 6) % 7;
-		const totalDias = new Date(anio, mes + 1, 0).getDate();
-
-		const celdas = [];
-
-		// Celdas vacías antes del primer día.
-		for (let i = 0; i < inicio; i += 1) {
-			const vacio = document.createElement("div");
-			vacio.className = "dia";
-			vacio.style.visibility = "hidden";
-			celdas.push(vacio);
-		}
-
-		// Días del mes.
-		for (let dia = 1; dia <= totalDias; dia += 1) {
-			const fechaISO = `${anio}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-			const fecha = fechaDeISO(fechaISO);
-			const hecho = diasConSesion.has(fechaISO);
-			const esHoy = fechaISO === hoy;
-			const esFuturo = fechaISO > hoy;
-
-			const celda = document.createElement("button");
-			celda.type = "button";
-			celda.className = "dia";
-			celda.setAttribute("data-date", fechaISO);
-			if (esHoy) celda.classList.add("dia--hoy");
-			if (hecho) celda.classList.add("dia--hecho");
-			if (esFuturo) celda.classList.add("dia--futuro");
-
-			const numero = document.createElement("span");
-			numero.textContent = formatoDiaNumero.format(fecha);
-			celda.append(numero);
-
-			if (!esFuturo) {
-				celda.addEventListener("click", () => {
-					inputFecha.value = fechaISO;
-					actualizarFechaEco();
-					calGrid
-						.querySelectorAll(".dia--seleccionado")
-						.forEach((el) =>
-							el.classList.remove("dia--seleccionado"),
-						);
-					celda.classList.add("dia--seleccionado");
-				});
+		const celdas = construirCeldas(anio, mes, hoy, diasConSesion).map((celda) => {
+			if (celda.vacia) {
+				const vacio = document.createElement("span");
+				vacio.className = "dia dia--vacio";
+				vacio.setAttribute("aria-hidden", "true");
+				return vacio;
 			}
 
-			celdas.push(celda);
-		}
+			const fecha = fechaDeISO(celda.fechaISO);
+			const nodo = document.createElement("span");
+			nodo.className = "dia";
+			if (celda.esHoy) {
+				nodo.classList.add("dia--hoy");
+				nodo.setAttribute("aria-current", "date");
+			}
+			if (celda.esFuturo) nodo.classList.add("dia--futuro");
+			if (celda.hecho) nodo.classList.add("dia--hecho");
+
+			// El número es decorativo: el texto oculto da la fecha completa.
+			const numero = document.createElement("span");
+			numero.className = "dia-numero";
+			numero.setAttribute("aria-hidden", "true");
+			numero.textContent = String(celda.dia);
+
+			const estado = celda.esFuturo
+				? "no disponible"
+				: celda.hecho
+					? "con sesión"
+					: "sin sesión";
+			const descripcion = document.createElement("span");
+			descripcion.className = "sr-only";
+			descripcion.textContent = `${formatoFechaLarga.format(fecha)}: ${estado}${
+				celda.esHoy ? ", hoy" : ""
+			}`;
+
+			nodo.append(numero, descripcion);
+			return nodo;
+		});
 
 		calGrid.replaceChildren(...celdas);
 	}
 
 	/** Repinta la tarjeta, la lista y el calendario. Devuelve la racha. */
-	function pintar({ celebrar = false } = {}) {
+	function pintar() {
 		const sesiones = leerSesiones().sort(
 			(a, b) => b.date.localeCompare(a.date) || b.creado - a.creado,
 		);
@@ -512,8 +430,7 @@ import Layout from "../layouts/Layout.astro";
 		rachaRecord.textContent = record === 0 ? "—" : record === 1 ? "1 día" : `${record} días`;
 		tiempoSemana.textContent = formatearDuracion(minutosSemana(sesiones));
 
-		// Taladros y lista
-		pintarTaladros(sesiones, celebrar);
+		// Lista y calendario
 		lista.replaceChildren(...sesiones.map(crearFila));
 		lista.classList.toggle("hidden", sesiones.length === 0);
 		listaVacia.classList.toggle("hidden", sesiones.length > 0);
@@ -521,7 +438,7 @@ import Layout from "../layouts/Layout.astro";
 			sesiones.length === 1 ? "1 sesión" : `${sesiones.length} sesiones`;
 
 		// Calendario (usa el mes que se tenga abierto).
-		pintarCalendario();
+		pintarCalendario(sesiones);
 
 		return racha;
 	}
@@ -573,9 +490,15 @@ import Layout from "../layouts/Layout.astro";
 		const fecha = inputFecha.value;
 		const tema = inputTema.value.trim();
 		const minutos = Number(inputMinutos.value);
+		const hoyISO = fechaLocal(new Date());
 
 		if (!fecha) {
 			mostrarError("Elige una fecha para la sesión.", inputFecha);
+			return;
+		}
+
+		if (fecha > hoyISO) {
+			mostrarError("No puedes registrar una sesión en el futuro.", inputFecha);
 			return;
 		}
 
@@ -599,11 +522,14 @@ import Layout from "../layouts/Layout.astro";
 		});
 		guardarSesiones(sesiones);
 
+		// Salta al mes de la sesión guardada para que se vea la perforación.
+		calFecha = fechaDeISO(fecha);
+
 		form.reset();
-		inputFecha.value = fechaLocal(new Date());
+		inputFecha.value = hoyISO;
 		mostrarError("");
 		actualizarFechaEco();
-		const racha = pintar({ celebrar: true });
+		const racha = pintar();
 		estamparSello();
 		anuncio.textContent = `Sesión guardada. Racha de ${racha} ${racha === 1 ? "día" : "días"}.`;
 	});
@@ -615,20 +541,23 @@ import Layout from "../layouts/Layout.astro";
 	});
 
 	// Cabecera con la fecha de hoy y primera pintada.
+	const hoyISO = fechaLocal(new Date());
 	fechaHoy.textContent = formatoCabecera.format(new Date());
-	fechaHoy.setAttribute("datetime", fechaLocal(new Date()));
-	inputFecha.value = fechaLocal(new Date());
+	fechaHoy.setAttribute("datetime", hoyISO);
+	inputFecha.max = hoyISO;
+	inputFecha.value = hoyISO;
 	actualizarFechaEco();
+	pintarCabeceraCalendario();
 	pintar();
 
 	// Navegación del calendario.
 	btnCalPrev.addEventListener("click", () => {
 		calFecha = fechaDeISO(mesVecino(fechaLocal(calFecha), -1));
-		pintarCalendario();
+		pintarCalendario(leerSesiones());
 	});
 
 	btnCalNext.addEventListener("click", () => {
 		calFecha = fechaDeISO(mesVecino(fechaLocal(calFecha), 1));
-		pintarCalendario();
+		pintarCalendario(leerSesiones());
 	});
 </script>

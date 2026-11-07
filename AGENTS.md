@@ -9,13 +9,15 @@
 - Solo pnpm (`pnpm-lock.yaml` es el lockfile).
 - `pnpm dev`, `pnpm build`, `pnpm preview`.
 - El servidor de desarrollo debe ejecutarse en segundo plano: `pnpm astro dev --background`. Gestiónalo con `pnpm astro dev stop|status|logs`. Nunca lo ejecutes en primer plano.
-- No existen tests, linter ni script de typecheck. Verifica con `pnpm build` y probando la página en un navegador.
+- `pnpm test` ejecuta los tests de las funciones puras con `node --test`. No hay linter ni script de typecheck. Verifica también con `pnpm build` y probando la página en un navegador.
 - Node >= 22.23.4 (`engines` en `package.json`).
 
 ## Estructura
 
 - El proyecto Astro está en la raíz del repo; no existe la carpeta `astro/`.
 - `src/pages/index.astro` — todo el marcado más un `<script>` de cliente con la lógica. Sin framework de UI y sin carpeta de componentes.
+- `src/scripts/calendario.js` — funciones puras de fecha y construcción del calendario, importadas por la página.
+- `tests/calendario.test.js` — tests de esas funciones con `node:test`.
 - `src/layouts/Layout.astro` — estructura HTML base, importa `src/styles/global.css`, carga Google Fonts.
 - `src/styles/global.css` — import de Tailwind, tokens de diseño y clases propias.
 
@@ -23,7 +25,7 @@
 
 - Instalado con `@tailwindcss/vite` en `astro.config.mjs`. No hay `tailwind.config.*`; no lo añadas.
 - Los tokens se declaran en `@theme` dentro de `src/styles/global.css`: `wall`, `card`, `card-soft`, `ink`, `ink-soft`, `rule`, `stamp`, `stamp-deep`, y `font-display` / `font-body`. Usa las utilidades que generan (`text-ink-soft`, `border-rule`, `font-display`) en vez de valores hex directos.
-- `.tarjeta`, `.campo`, `.taladro*`, `.sello`, `.ficha-datos`, `.rotulo`, `.racha-*`, `.sesion*`, `.fecha-eco` y `.calendario*` están definidas fuera de `@layer`, así que sobrescriben a las utilidades de Tailwind. Edítalas en `global.css` en lugar de añadir clases de utilidad que compitan.
+- `.tarjeta`, `.campo`, `.sello`, `.ficha-datos`, `.rotulo`, `.racha-*`, `.sesion*`, `.fecha-eco`, `.mini-calendario*`, `.dia*` y `.btn-mes` están definidas fuera de `@layer`, así que sobrescriben a las utilidades de Tailwind. Edítalas en `global.css` en lugar de añadir clases de utilidad que compitan.
 - El `<script>` de la página es JavaScript plano aunque `tsconfig.json` extienda `astro/tsconfigs/strict`; no hay archivos `.ts`.
 
 ## Diseño
@@ -32,6 +34,7 @@
 - Superficie en modo Operate: el mundo aporta tipografía, paleta, densidad y una firma; nunca la navegación ni los controles, que son los estándar de la web.
 - El mundo es la tarjeta de fichar: manila sobre pared fría, rojo de sello como único acento y un sello FICHADO al guardar. La anti-referencia es el cuaderno con papel crema, subrayador amarillo y serif.
 - Usa los tokens de `global.css` en vez de hex sueltos. La llama de la racha es SVG, no un emoji.
+- El mini calendario vive dentro de la tarjeta de la racha, en formato compacto, y sustituye a la antigua fila de siete taladros. Es solo visual: la fecha se elige en el formulario.
 - Antes de commitear cambios visuales, sirve el build y pasa `impeccable detect` a 390×844 y 1440×900. Las capturas de revisión van a `.impeccable/review/` (ignorado por git).
 
 ## Reglas del dominio (fáciles de equivocar)
@@ -42,7 +45,11 @@
 - Récord = tirada consecutiva más larga de días con sesión. Se deriva de las sesiones con `calcularRecord()`, no se persiste, e ignora fechas futuras. `calcularRacha()` da la racha viva actual.
 - Tiempo semanal = suma de `minutes` de las sesiones entre el lunes y el domingo de la semana actual, hasta hoy. Se deriva con `minutosSemana()`; `inicioSemana()` asume lunes como primer día. Las fechas futuras no cuentan.
 - Persistencia: clave `diario-estudio.sesiones.v1`; forma de sesión `{ id, date, topic, minutes, creado }`. Se pinta ordenado por `date` desc y luego `creado` desc.
-- El calendario mensual visualiza los días con sesión y usa las mismas funciones de fecha local (`sumarDias`, `fechaLocal`) para navegar meses; las fechas futuras se muestran desactivadas y nunca cuentan.
+- El calendario es una miniatura de 42 celdas fijas (seis filas, lunes a domingo) dentro de la tarjeta de la racha. Es solo visual: la fecha se elige en el formulario.
+- La cabecera de días se construye desde un lunes conocido (`etiquetasSemana()`), nunca desde los días 1–7 del mes visible.
+- Una sesión en fecha futura se pinta solo como futuro (`dia--futuro`, «no disponible»), nunca como hecha. El formulario bloquea fechas futuras con `max` y validación en español.
+- Al guardar, `calFecha` salta al mes de la sesión guardada. `pintar()` lee `localStorage` una vez y pasa las sesiones a `pintarCalendario()`.
+- La lógica pura de fecha y calendario vive en `src/scripts/calendario.js` y se testea con `pnpm test`. `leerSesiones()` filtra entradas corruptas para no romper la lista ni el calendario.
 - Pinta el tema escrito por el usuario con `textContent`, nunca con `innerHTML`.
 
 ## Convenciones

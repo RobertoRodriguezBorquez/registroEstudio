@@ -111,70 +111,112 @@
   color: var(--color-ink-soft);
 }
 
-/* Fila de taladros: un hueco por día de los últimos siete. */
-.taladros {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.3rem;
-  margin-top: 1.15rem;
-  padding-top: 0.9rem;
+/* Mini calendario: el mes de la racha, compacto dentro de la tarjeta. */
+.mini-calendario {
+  margin-top: 1rem;
+  padding-top: 0.8rem;
   border-top: 1px solid var(--color-rule);
 }
 
-.taladro-celda {
-  display: grid;
-  justify-items: center;
-  gap: 0.35rem;
+.mini-calendario-mes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
-.taladro-letra {
+.mini-calendario-titulo {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--color-ink-soft);
-  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--color-ink);
 }
 
-.taladro {
-  display: block;
-  width: 100%;
-  max-width: 2.4rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
+.btn-mes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+  color: var(--color-ink);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
-/* Perforación real: el hueco deja ver la pared y el borde interior lo hunde. */
-.taladro--hecho {
-  background-color: var(--color-wall);
-  box-shadow:
-    inset 0 3px 4px rgba(26, 26, 23, 0.5),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.6),
-    0 0 0 1px rgba(26, 26, 23, 0.12);
+.btn-mes:hover {
+  border-color: var(--color-ink-soft);
 }
 
-.taladro--pendiente {
-  border: 1px dashed rgba(92, 86, 71, 0.55);
-}
-
-.taladro--hoy {
-  outline: 2px solid var(--color-stamp);
+.btn-mes:focus-visible {
+  outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
 
-.taladro--nuevo {
-  animation: taladrar 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+.mini-calendario-semana,
+.mini-calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.18rem;
+  max-width: 12.5rem;
+  margin-inline: auto;
 }
 
-@keyframes taladrar {
-  from {
-    transform: scale(1.4);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.mini-calendario-semana {
+  margin-bottom: 0.1rem;
+}
+
+.dia-semana {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-soft);
+  text-align: center;
+}
+
+.dia {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+/* Día perforado: el hueco deja ver la pared y el borde lo hunde. */
+.dia--hecho {
+  background-color: var(--color-wall);
+  box-shadow:
+    inset 0 2px 3px rgba(26, 26, 23, 0.45),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.6),
+    0 0 0 1px rgba(26, 26, 23, 0.1);
+}
+
+.dia--futuro {
+  color: var(--color-ink-soft);
+}
+
+/* El aro de hoy cabe en el hueco de la rejilla sin tocar los vecinos. */
+.dia--hoy {
+  outline: 2px solid var(--color-stamp);
+  outline-offset: 0;
 }
 
 /* Campos del formulario: papel más claro que la tarjeta. */
@@ -300,149 +342,6 @@
     transform: rotate(-6deg) scale(1);
     opacity: 1;
   }
-}
-
-/* Calendario mensual: visualiza los días con sesión como perforaciones. */
-.calendario {
-  margin-top: 1.5rem;
-  background-color: var(--color-card);
-  border: 1px solid var(--color-rule);
-  border-radius: 4px;
-  padding: 1rem;
-  min-width: 0;
-}
-
-.calendario-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.2rem;
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.dia {
-  box-sizing: border-box;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--color-ink);
-  cursor: pointer;
-  max-width: 100%;
-}
-
-.calendario-mes {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.calendario-mes h2 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-ink);
-}
-
-.btn-mes {
-  background: none;
-  border: 1px solid var(--color-rule);
-  border-radius: 3px;
-  color: var(--color-ink);
-  cursor: pointer;
-  padding: 0.25rem 0.55rem;
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  line-height: 1;
-}
-
-.btn-mes:hover {
-  border-color: var(--color-ink-soft);
-}
-
-.btn-mes:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 2px;
-}
-
-.calendario-semana {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 0.4rem;
-}
-
-.dia-semana {
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--color-ink-soft);
-  text-align: center;
-  padding: 0.25rem 0;
-}
-
-.calendario-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.2rem;
-}
-
-.dia {
-  aspect-ratio: 1;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--color-ink);
-  cursor: pointer;
-}
-
-.dia:hover {
-  background-color: var(--color-card-soft);
-}
-
-.dia--futuro {
-  color: var(--color-ink-soft);
-  cursor: default;
-}
-
-.dia--futuro:hover {
-  background-color: transparent;
-}
-
-.dia--hecho::after {
-  content: "";
-  position: absolute;
-  width: 40%;
-  height: 40%;
-  background-color: var(--color-wall);
-  border-radius: 50%;
-  box-shadow:
-    inset 0 1px 2px rgba(26, 26, 23, 0.5),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.6);
-}
-
-.dia--hoy {
-  outline: 2px solid var(--color-stamp);
-  outline-offset: 1px;
-}
-
-.dia--seleccionado {
-  background-color: var(--color-stamp);
-  color: var(--color-card-soft);
-}
-
-.dia--seleccionado::after {
-  display: none;
 }
 
 /* Cada sesión es una fila del registro. */

@@ -123,7 +123,7 @@ Paleta de oficina: cartón, tinta y un rojo de tampón. El contraste entre el ma
 
 Móvil primero, una columna: cabecera de tinta, tarjeta de racha, formulario y lista. A 390×844 el botón de guardar queda dentro del primer viewport. A partir de 1024 px la página se parte en dos columnas de 544 px y el resto (`main` máximo 76rem, gap 40 px): tarjeta y formulario a la izquierda, registro a la derecha; ambas columnas empiezan a la misma altura.
 
-La retícula interior de la tarjeta es de reglas de 1 px: la fila de perforaciones y la ficha de datos se separan con `border-top` y una columna central con `border-left`. El ritmo de espacio es 4/8/12/16/24/32/40 px; siempre hay más aire encima de un título que debajo.
+La retícula interior de la tarjeta es de reglas de 1 px: el mini calendario y la ficha de datos se separan con `border-top` y una columna central con `border-left`. El ritmo de espacio es 4/8/12/16/24/32/40 px; siempre hay más aire encima de un título que debajo.
 
 ## Elevation & Depth
 
@@ -131,7 +131,7 @@ Elevación mínima y material. Solo la tarjeta se levanta de la pared, con una s
 
 ### Shadow Vocabulary
 - **Card lift** (`box-shadow: 0 1px 0 rgba(26,26,23,0.14), 0 16px 28px -20px rgba(26,26,23,0.6)`): solo en `.tarjeta`.
-- **Punch recess** (`inset 0 3px 4px rgba(26,26,23,0.5), inset 0 -1px 1px rgba(255,255,255,0.6), 0 0 0 1px rgba(26,26,23,0.12)`): perforación de un día fichado.
+- **Punch recess** (`inset 0 2px 3px rgba(26,26,23,0.45), inset 0 -1px 1px rgba(255,255,255,0.6), 0 0 0 1px rgba(26,26,23,0.1)`): perforación de un día fichado en el mini calendario.
 
 ### Named Rules
 **The One Lift Rule.** En una pantalla solo se levanta un elemento: la tarjeta de control. Todo lo demás se separa con reglas o con el cambio de superficie.
@@ -162,8 +162,8 @@ Esquinas casi rectas: 3 px en campos, botones y sello; 4 px en la tarjeta. Las p
 ### Streak Line
 Número de racha, unidad y llama en una sola línea flex con alineación por línea base. La llama es un SVG propio de 30 px en `stamp`, nunca un emoji del sistema. El sello FICHADO entra al final de esa línea con `margin-left: auto`.
 
-### Punch Row
-Siete columnas iguales, una por día de la última semana, con la letra del día encima. Día fichado: perforación recesada. Día vacío: aro discontinuo. Hoy: aro de 2 px en `stamp` con 2 px de separación. Al guardar, el hueco de hoy se perfora con una animación de 260 ms.
+### Mini Calendar
+Rejilla fija de 42 celdas (seis filas), de lunes a domingo, dentro de la tarjeta de la racha. Cabecera con mes y año en `Title`, flanqueada por dos botones de 26 px con flechas «‹ ›» y `aria-label`. Cada celda es un círculo de ~26 px, solo visual: la fecha se elige en el formulario. Día fichado: perforación recesada con el número encima. Hoy: aro de 2 px en `stamp` encajado en el hueco de la rejilla. Día futuro: número en `ink-soft`, sin acción y anunciado como «no disponible». El estado futuro gana siempre al de sesión guardada. La cabecera de días se genera desde un lunes conocido, nunca desde los días 1–7 del mes visible.
 
 ### Stamp
 Texto FICHADO en 11.2 px, 700, 0.14em, borde de 2 px `stamp`, rotado −6°; aparece con una escala de 1.7 a 1 en 240 ms y se queda. Es el único objeto estampado de la página.
